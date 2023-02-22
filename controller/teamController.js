@@ -3,7 +3,7 @@ const Teams = require('../model/team')
 const getAllTeams = async (req, res) => {
     //req.query
     //console.log(req.query);
-    const {name, location, uclwinner, sort, select} = req.query
+    const {name, location, uclwinner, sort, select, numberFilters} = req.query
     let queryObject = {};
     let result = Teams.find(queryObject)
    
@@ -15,6 +15,30 @@ const getAllTeams = async (req, res) => {
     }
     if (uclwinner) {
         queryObject.uclwinner = uclwinner === 'true' ? true : false;
+    }
+    if (numberFilters){
+        //> >= < <= rating> 4.0 -rating $gt 4.0
+        // $gt $gte $eq $lt $lte
+    
+        const operatorMap ={
+            ">": '$gt',
+            ">=": '$gte',
+            "=": '$eq',
+            "<": '$lt',
+            "<=": '$lte'
+        }
+         const regEx = /\b(<|>|>=|<=|=)\b/g;
+         //rating>=3.0 --> ratings-$gte-3.0
+         let filters = numberFilters.replace(regEx, (match)=> `-${operatorMap[match]}-`)
+         const options = ['rating']
+         filters = filters.split(',').forEach((item) => {
+            //ratings-$gte-3.0;= [ratings, $gte, 3.0]
+           const [search, operator, value] = item.split('-') 
+           if (options.includes(search)) {
+            //queryObject['rating'] = {[$gte]: 3.0}
+            queryObject[search] = { [operator]: Number(value) }
+           }
+         });
     }
 
     //sorting
@@ -30,7 +54,7 @@ const getAllTeams = async (req, res) => {
     //limit
     const limit = Number(req.query.limit)
     result = result.limit(limit);
-
+    
     
     result = result.find(queryObject)
     const teams = await result
