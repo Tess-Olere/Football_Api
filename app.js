@@ -18,7 +18,7 @@ app.use(express.json())
 
 // error route
 app.use((req, res) => {
-    res.status(404).send('Route not found')
+    res.status(404).send(`Route not found <a href = '/api/v1/teams'>FOOTBALL API</a>`)
 })
 const startServer = async () => {
     try {
