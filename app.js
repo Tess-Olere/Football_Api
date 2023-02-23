@@ -3,6 +3,7 @@ const express = require('express');
 const app = express();
 const PORT = process.env.PORT || 4000;
 const mongoose = require('mongoose');
+const cors = require('cors');
 mongoose.set('strictQuery', true);
 
 
@@ -12,6 +13,7 @@ const teamRouter = require('./routes/teamRouter')
 app.use(teamRouter)
 
 //middleware
+app.use(cors())
 app.use(express.json())
 
 // error route
